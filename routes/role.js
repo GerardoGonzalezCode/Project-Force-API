@@ -5,10 +5,10 @@ const db = require('./queries')
 
 var router = express.Router();
 
-router.get('/', db.getUsers)
-router.get('/:id', db.getUserById)
-router.post('/', db.createUser)
-router.put('/:id', db.updateUser)
-router.delete('/:id', db.deleteUser)
+router.get('/', db.getRoles)
+router.get('/:id', db.getRoleById)
+router.post('/', db.createRole)
+router.put('/:id', db.updateRole)
+router.delete('/:id', db.deleteRole)
 
 module.exports = router;
