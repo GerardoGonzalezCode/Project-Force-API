@@ -26,16 +26,27 @@ const getUserById = (request, response) => {
   })
 }
 
+const getUserByEmail = (request, response) => {
+  const email = request.params.email
+  let emaild = '%' + email + '%'
+  pool.query(`SELECT * FROM users WHERE email ilike $1`, [emaild], (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
 const createUser = (request, response) => {
-  const { name, email, phone, birth, password, seed, department, role } = request.body
+  const { name, email, phone, birth, password, imageUrl, seed, department, role } = request.body
 
   pool.query('SELECT * FROM users WHERE email = $1', [email], (error, resultsS) => {
     if (error) {
       throw error
     }
     if (resultsS.rows[0] === undefined) {
-      pool.query('INSERT INTO users (name, email, phone, birth, password, seed, department, role) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
-      [name, email, phone, birth, password, seed, department, role ], (error, results) => {
+      pool.query('INSERT INTO users (name, email, phone, birth, password, imageUrl, seed, department, role) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', 
+      [name, email, phone, birth, password, imageUrl, seed, department, role ], (error, results) => {
         if (error) {
           throw error
         }
@@ -54,7 +65,7 @@ const createUser = (request, response) => {
 
 const updateUser = (request, response) => {
   const id = parseInt(request.params.id)
-  const { name, email, phone, birth } = request.body
+  const { name, email, phone, birth, imageUrl } = request.body
 
   pool.query('SELECT * FROM users WHERE id = $1', [id], (error, resultsS) => {
     if (error) {
@@ -62,8 +73,8 @@ const updateUser = (request, response) => {
     }
     if (resultsS.rows[0].email === email) {
       pool.query(
-        'UPDATE users SET name = $1, email = $2, phone = $3, birth = $4, WHERE id = $5',
-        [name, email, phone, birth, id],
+        'UPDATE users SET name = $1, email = $2, phone = $3, birth = $4, imageurl = $5 WHERE id = $6',
+        [name, email, phone, birth, imageUrl, id],
         (error, results) => {
           if (error) {
             throw error
@@ -78,8 +89,8 @@ const updateUser = (request, response) => {
         }
         if (resultsS.rows[0] === undefined) {
           pool.query(
-            'UPDATE users SET name = $1, email = $2, phone = $3, birth = $4 WHERE id = $5',
-            [name, email, phone, birth, id],
+            'UPDATE users SET name = $1, email = $2, phone = $3, birth = $4, imageurl = $5 WHERE id = $6',
+            [name, email, phone, birth, imageUrl, id],
             (error, results) => {
               if (error) {
                 throw error
@@ -128,15 +139,15 @@ const getDepartmentById = (request, response) => {
 }
 
 const createDepartment = (request, response) => {
-  const { name, area, incharge, seed, manager } = request.body
+  const { name, incharge, seed, manager } = request.body
 
   pool.query('SELECT * FROM department WHERE name = $1', [name], (error, resultsS) => {
     if (error) {
       throw error
     }
     if (resultsS.rows[0] === undefined) {
-      pool.query('INSERT INTO department (name, area, incharge, seed, manager) VALUES ($1, $2, $3, $4, $5)', 
-      [name, area, incharge, seed, manager], (error, results) => {
+      pool.query('INSERT INTO department (name, incharge, seed, manager) VALUES ($1, $2, $3, $4)', 
+      [name, incharge, seed, manager], (error, results) => {
         if (error) {
           throw error
         }
@@ -155,7 +166,7 @@ const createDepartment = (request, response) => {
 
 const updateDepartment = (request, response) => {
   const id = parseInt(request.params.id)
-  const { name, area, incharge, manager } = request.body
+  const { name, incharge, manager } = request.body
 
   pool.query('SELECT * FROM department WHERE id = $1', [id], (error, resultsS) => {
     if (error) {
@@ -163,8 +174,8 @@ const updateDepartment = (request, response) => {
     }
     if (resultsS.rows[0].name === name) {
       pool.query(
-        'UPDATE department SET name = $1, area = $2, incharge = $3, manager = $4 WHERE id = $5',
-        [name, area, incharge, manager, id],
+        'UPDATE department SET name = $1, incharge = $2, manager = $3 WHERE id = $4',
+        [name, incharge, manager, id],
         (error, results) => {
           if (error) {
             throw error
@@ -179,8 +190,8 @@ const updateDepartment = (request, response) => {
         }
         if (resultsS.rows[0] === undefined) {
           pool.query(
-            'UPDATE department SET name = $1, area = $2, incharge = $3, manager = $4 WHERE id = $5',
-            [name, area, incharge, manager, id],
+            'UPDATE department SET name = $1, incharge = $3, manager = $4 WHERE id = $5',
+            [name, incharge, manager, id],
             (error, results) => {
               if (error) {
                 throw error
@@ -236,7 +247,7 @@ const createRole = (request, response) => {
       throw error
     }
     if (resultsS.rows[0] === undefined) {
-      pool.query('INSERT INTO roles (name, seed) VALUES ($1)', [name, seed], (error, results) => {
+      pool.query('INSERT INTO roles (name, seed) VALUES ($1,$2)', [name, seed], (error, results) => {
         if (error) {
           throw error
         }
@@ -244,7 +255,7 @@ const createRole = (request, response) => {
           if (error) {
             throw error
           }
-          response.status(201).send(`Department added with ID: ${resultsUser.rows[0].id}`)
+          response.status(201).send(`Role added with ID: ${resultsUser.rows[0].id}`)
         })
       })
     } else {
@@ -311,6 +322,7 @@ const deleteRole = (request, response) => {
 module.exports = {
   getUsers,
   getUserById,
+  getUserByEmail,
   createUser,
   updateUser,
   deleteUser,

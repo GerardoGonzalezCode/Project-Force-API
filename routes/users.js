@@ -6,7 +6,8 @@ const db = require('./queries')
 var router = express.Router();
 
 router.get('/', db.getUsers)
-router.get('/:id', db.getUserById)
+router.get('/user/:id', db.getUserById)
+router.get('/search/:email', db.getUserByEmail)
 router.post('/', db.createUser)
 router.put('/:id', db.updateUser)
 router.delete('/:id', db.deleteUser)
