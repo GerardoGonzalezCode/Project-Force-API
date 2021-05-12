@@ -247,6 +247,7 @@ const createRole = (request, response) => {
       throw error
     }
     if (resultsS.rows[0] === undefined) {
+      console.log(request.body);
       pool.query('INSERT INTO roles (name, seed) VALUES ($1,$2)', [name, seed], (error, results) => {
         if (error) {
           throw error
@@ -255,7 +256,7 @@ const createRole = (request, response) => {
           if (error) {
             throw error
           }
-          response.status(201).send(`Role added with ID: ${resultsUser.rows[0].id}`)
+          response.status(201).send(`Role added with ID: ${resultsUser.id}`)
         })
       })
     } else {
